@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 5 - Pair Programming</title>
+    <style>
+        h2 {
+            color: blue;
+        }
+
+        div {
+            width: 300px;
+            height: 300px;
+            border: 3px dashed blue;
+            color: yellow;
+            text-align: center;
+            line-height: 300px;
+            font-size: 30px;
+            text-shadow: 3px 3px 3px black;
+            margin: 10px;
+            background-color: black;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        input {
+            display: none;
+        }
+
+        label {
+            display: block;
+        }
+
+        div {
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <hr>
+    <h2>
+        Desarrollar una vista que contenga 3 zonas para arrastrar y soltar imágenes que se abrirán en su interior. Si realizo dicha acción fuera de esas zonas, se debe cancelar el evento automático correspondiente.
+        Así mismo, cada una de estas zonas permitirá seleccionar las recursos desde el file system.
+    </h2>
+    <hr>
+
+    <input id="zona1" type="file">
+    <div><label for="zona1">Zona 1: DD or Click</label></div>
+
+    <input id="zona2" type="file">
+    <div><label for="zona2">Zona 2: DD or Click</label></div>
+
+    <input id="zona3" type="file">
+    <div><label for="zona3">Zona 3: DD or Click</label></div>
+
+    <script>
+
+        function cargarImagen(archivito, div){
+
+            let xhr = new XMLHttpRequest
+            let urlSinCache = archivito + '?' + Date.now()
+            xhr.open('get', urlSinCache)
+            xhr.responseType = 'blob'
+
+            xhr.addEventListener('load', () =>{
+                if (xhr.status == 200){
+                    let imagenBlob = xhr.response
+
+                    let url = URL.createObjectURL(imagenBlob)
+                    div.style.backgroundImage = `url(${url})`
+                    
+                }else{
+                    console.log('hola se ve que hubo un error fuck')
+                }
+            })
+            
+            xhr.send()
+        }
+
+        /*       Registro de evnetos de Drag And Drop*/
+
+        let div = document.querySelectorAll('div')
+        let input = document.querySelectorAll('input')
+
+        document.addEventListener('dragenter', e => e.preventDefault())
+        document.addEventListener('dragleave', e => e.preventDefault())
+        document.addEventListener('dragover', e => e.preventDefault())
+        document.addEventListener('drop', e => e.preventDefault())
+
+
+    div.forEach((el, id) => {
+        el.addEventListener('drop', e =>{
+            e.preventDefault()
+            console.log('Solte el recurso', id)
+            let archivito = e.dataTransfer.files[0].name
+            input[id].value = ''
+            cargarImagen(archivito,div[id])
+        })
+
+        el.addEventListener('dragenter', e => {
+            e.preventDefault()
+            console.log('Estoy adentro del drop', id)
+        })
+
+        el.addEventListener('dragleave', e => {
+            e.preventDefault()
+            console.log('Esty afuera del drop', id)
+        })
+
+        el.addEventListener('dragover', e => {
+            e.preventDefault()
+            console.log('Estoy encima del drop', id)
+        })
+
+
+        input.forEach((el, id) =>{
+            el.addEventListener('change', () =>{
+                console.log('cambio el input', id)
+
+                let archivito = input[id].files[0].name
+
+                input[id].value = ''
+                cargarImagen(archivito,div[id])
+            })
+
+        })
+
+    })
+
+    </script>
+</html>
